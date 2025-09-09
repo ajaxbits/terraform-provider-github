@@ -26,7 +26,7 @@ func TestAccGithubTeamParent(t *testing.T) {
 			}
 
 			resource "github_team_parent" "test" {
-			  child_team_id  = github_team.child.id
+			  team_id  = github_team.child.id
 			  parent_team_id = github_team.parent.id
 			}
 		`, randomID, randomID)

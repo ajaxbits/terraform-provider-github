@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/google/go-github/v66/github"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -20,21 +19,15 @@ func resourceGithubTeamParent() *schema.Resource {
 			State: resourceGithubTeamParentImport,
 		},
 
-		CustomizeDiff: customdiff.Sequence(
-			customdiff.ComputedIf("slug", func(_ context.Context, d *schema.ResourceDiff, meta interface{}) bool {
-				return d.HasChange("name")
-			}),
-		),
-
 		Schema: map[string]*schema.Schema{
-			"child_team_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The ID or slug of the child team.",
-			},
 			"etag": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"team_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The ID or slug of the child team.",
 			},
 			"parent_team_id": {
 				Type:        schema.TypeString,
@@ -73,7 +66,7 @@ func resourceGithubTeamParentCreateOrUpdate(d *schema.ResourceData, meta interfa
 	client := meta.(*Owner).v3client
 	orgId := meta.(*Owner).id
 
-	childTeamID := d.Get("child_team_id")
+	childTeamID := d.Get("team_id")
 	childTeamId, err := getTeamID(childTeamID.(string), meta)
 	if err != nil {
 		return err
@@ -177,7 +170,7 @@ func resourceGithubTeamParentDelete(d *schema.ResourceData, meta interface{}) er
 
 	ctx := context.Background()
 
-	childTeamID := d.Get("child_team_id")
+	childTeamID := d.Get("team_id")
 	childTeamId, err := getTeamID(childTeamID.(string), meta)
 	if err != nil {
 		return err
