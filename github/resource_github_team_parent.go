@@ -31,8 +31,7 @@ func resourceGithubTeamParent() *schema.Resource {
 			},
 			"parent_team_id": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "",
+				Required:    true,
 				Description: "The ID or slug of the parent team, if this is a nested team.",
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					if d.Get("parent_team_id") == d.Get("parent_team_read_id") || d.Get("parent_team_id") == d.Get("parent_team_read_slug") {
