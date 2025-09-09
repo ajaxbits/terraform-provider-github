@@ -32,6 +32,10 @@ func resourceGithubTeamParent() *schema.Resource {
 				Required:    true,
 				Description: "The ID or slug of the child team.",
 			},
+			"etag": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"parent_team_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -123,13 +127,17 @@ func resourceGithubTeamParentRead(d *schema.ResourceData, meta interface{}) erro
 		ctx = context.WithValue(ctx, ctxEtag, d.Get("etag").(string))
 	}
 
-	team, _, err := client.Teams.GetTeamByID(ctx, orgId, id)
+	team, resp, err := client.Teams.GetTeamByID(ctx, orgId, id)
 	if err != nil {
 		if ghErr, ok := err.(*github.ErrorResponse); ok {
 			if ghErr.Response.StatusCode == http.StatusNotModified {
 				return nil
 			}
 		}
+		return err
+	}
+
+	if err = d.Set("etag", resp.Header.Get("ETag")); err != nil {
 		return err
 	}
 
